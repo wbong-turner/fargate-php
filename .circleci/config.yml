@@ -1,0 +1,35 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: quay.io/turner/fargate-cicd
+    environment:
+      VAR: .circleci/config.env
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 17.11.0-ce
+      - run:
+          name: Set docker image
+          command: |
+            source ${VAR}
+            # for node.js apps you can use version from package.json
+            # VERSION=$(jq -r .version < package.json)
+            BUILD=${CIRCLE_BUILD_NUM}
+            if [ "${CIRCLE_BRANCH}" != "master" ]; then
+              BUILD=${CIRCLE_BRANCH}.${CIRCLE_BUILD_NUM}
+            fi
+            echo "export IMAGE=${REPO}:${VERSION}-${BUILD}" >> ${VAR}
+            cat ${VAR}
+      - run:
+          name: Login to registry
+          command: login=$(aws ecr get-login --no-include-email) && eval "$login"
+      - run:
+          name: Build app image
+          command: . ${VAR}; docker build -t ${IMAGE} .
+      - run:
+          name: Push app image to registry
+          command: . ${VAR}; docker push ${IMAGE}
+      - run:
+          name: Deploy
+          command: . ${VAR}; fargate service deploy -i ${IMAGE}
