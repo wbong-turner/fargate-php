@@ -32,5 +32,10 @@ jobs:
           name: Push app image to registry
           command: . ${VAR}; docker push ${IMAGE}
       - run:
-          name: Deploy
-          command: . ${VAR}; fargate service deploy -i ${IMAGE}
+          name: Deploy master to prod, everything else to dev
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID_PROD}
+              export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY_PROD}
+            fi
+            . ${VAR}; fargate service deploy -i ${IMAGE}
