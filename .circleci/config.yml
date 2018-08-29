@@ -39,5 +39,5 @@ jobs:
               export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY_PROD}
               . ${VAR}; fargate service deploy -i ${IMAGE} -c fargate-php-test-prod -s fargate-php-test-prod
             else
-              . ${VAR}; fargate service deploy -i ${IMAGE}
+              . ${VAR}; fargate service deploy -f docker-compose.yml
             fi
