@@ -1,3 +1,4 @@
 <?php
-echo "Hello World #5";
+$version = exec('grep VERSION TURNER_METADATA | cut -f2 -d=');
+echo "Hello World version " . $version;
 ?>
