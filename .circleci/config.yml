@@ -16,6 +16,7 @@ jobs:
             source ${VAR}
             # for node.js apps you can use version from package.json
             # VERSION=$(jq -r .version < package.json)
+            VERSION=$(grep VERSION TURNER_METADATA | cut -f2 -d=)
             BUILD=${CIRCLE_BUILD_NUM}
             if [ "${CIRCLE_BRANCH}" != "master" ]; then
               BUILD=${CIRCLE_BRANCH}.${CIRCLE_BUILD_NUM}
@@ -39,5 +40,5 @@ jobs:
               export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY_PROD}
               . ${VAR}; fargate service deploy -i ${IMAGE} -c fargate-php-test-prod -s fargate-php-test-prod
             else
-              . ${VAR}; fargate service deploy -f docker-compose.yml
+              . ${VAR}; fargate service deploy -i ${IMAGE}
             fi
